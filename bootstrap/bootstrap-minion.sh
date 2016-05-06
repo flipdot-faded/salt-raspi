@@ -36,68 +36,67 @@ echo
 # Check system packages
 declare -a pkg_req=(salt-minion python-pip git)
 
-# echo -n "Updating repositories... "
-## REMOVE COMMENTS
-## [[ $(apt-get update 1>/dev/null 2> >(wc -l)) -gt 0 ]] && (echo -e "\n  ${err} Error updating repositories..." 1>&2; exit 3)
-## echo -e "\n"
+ echo -n "Updating repositories... "
+ [[ $(apt-get update 1>/dev/null 2> >(wc -l)) -gt 0 ]] && (echo -e "\n  ${err} Error updating repositories..." 1>&2; exit 3)
+ echo -e "\n"
 
-#echo "Checking installed system packages..."
-#for p in ${pkg_req[@]}; do
-#    echo -n "  "
-#    if [[ $(dpkg-query -W $p 2>/dev/null) ]]; then
-#        echo -ne "${ok}"
-#    else
-#        echo -ne "${noy}"
-#        pkg_new+=($p)
-#    fi
-#    echo " $p"
-#done
-#echo
-#
-#if [[ ${#pkg_new[@]} -gt 0 ]]; then
-#    echo -n "Installing required system packages... "
-#    if [[ !$(apt-get install -y ${pkg_new[@]} &>/dev/null) ]]; then
-#       echo -e "\n  ${err} Error installing required packages" 1>&2
-#       exit 4
-#    fi
-#    echo -e "\n"
-#fi
+echo "Checking installed system packages..."
+for p in ${pkg_req[@]}; do
+    echo -n "  "
+    if [[ $(dpkg-query -W $p 2>/dev/null) ]]; then
+        echo -ne "${ok}"
+    else
+        echo -ne "${noy}"
+        pkg_new+=($p)
+    fi
+    echo " $p"
+done
+echo
+
+if [[ ${#pkg_new[@]} -gt 0 ]]; then
+    echo -n "Installing required system packages... "
+    if [[ !$(apt-get install -y ${pkg_new[@]} &>/dev/null) ]]; then
+       echo -e "\n  ${err} Error installing required packages" 1>&2
+       exit 4
+    fi
+    echo -e "\n"
+fi
 
 
 # Check python modules
 declare -a py_req=(shyaml)
 
-#echo "Checking installed python modules..."
-#for p in ${py_req[@]}; do
-#    echo -n "  "
-#    if [[ $(pip show ${p}) ]]; then
-#        echo -ne "${ok}"
-#    else
-#        echo -ne "${noy}"
-#        py_new+=($p)
-#    fi
-#    echo " $p"
-#done
-#echo
-#
-#if [[ ${#py_new[@]} -gt 0 ]]; then
-#    echo "Installing required python modules... "
-#    for n in ${py_new[@]}; do
-#        if [[ $(pip search "$n" | wc -l) -lt 1 ]]; then
-#           echo -e "  ${err} $n not found"
-#           exit 5
-#        fi
-#        piplog=$(pip install "$n" &>1)
-#        if [[ $? -eq 0 ]]; then
-#            echo -e "  ${ok} Success"
-#        else
-#            echo -e "  ${err} Error"
-#            echo "${piplog}"
-#            exit 6
-#        fi
-#        echo
-#    done
-#fi
+echo "Checking installed python modules..."
+for p in ${py_req[@]}; do
+    echo -n "  "
+    if [[ $(pip show ${p}) ]]; then
+        echo -ne "${ok}"
+    else
+        echo -ne "${noy}"
+        py_new+=($p)
+    fi
+    echo " $p"
+done
+echo
+
+if [[ ${#py_new[@]} -gt 0 ]]; then
+    echo "Installing required python modules... "
+    for n in ${py_new[@]}; do
+        if [[ $(pip search "$n" | wc -l) -lt 1 ]]; then
+           echo -e "  ${err} $n not found"
+           exit 5
+        fi
+        piplog=$(pip install "$n" &>1)
+        if [[ $? -eq 0 ]]; then
+            echo -e "  ${ok} Success"
+        else
+            echo -e "  ${err} Error"
+            echo "${piplog}"
+            exit 6
+        fi
+        echo
+    done
+fi
 
 
 # Use masterless local minion mode if not already set
