@@ -2,12 +2,16 @@ spacebot:
   user.present:
     - name: sopel
     - home: /home/sopel/
+    - groups:
+      - sopel
+      - gpio
 
   pkg.installed:
     - pkgs:
       - python3
       - python3-pip
       - git
+      - supervisor
   pip.installed:
     - bin_env: pip3
     - name: sopel
@@ -26,7 +30,11 @@ spacebot:
       - user
       - group
 
-spacebot_spacestatus:  
+  service.running:
+    - name: supervisor
+    - enable: True
+
+spacebot_spacestatus:
   pip.installed:
     - bin_env: pip3
     - requirements: /home/sopel/.sopel/modules/spacestatus/requirements.txt
