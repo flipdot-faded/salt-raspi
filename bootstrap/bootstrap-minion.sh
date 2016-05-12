@@ -18,6 +18,8 @@ noy="[ ${yellow}NO${nc} ]"
 err="[ ${red}ERROR${nc} ]"
 info="[ ${cyan}INFO${nc} ]"
 
+apt_log="/tmp/apt.log"
+
 
 # Make sure script is run as root
 if [[ $EUID -ne 0 ]]; then
@@ -55,7 +57,7 @@ echo
 
 if [[ ${#pkg_new[@]} -gt 0 ]]; then
     echo -n "Installing required system packages... "
-    if [[ !$(apt-get install -y ${pkg_new[@]} &>/dev/null) ]]; then
+    if [[ !$(apt-get install -y ${pkg_new[@]} >> ${apt_log}) ]]; then
        echo -e "\n  ${err} Error installing required packages" 1>&2
        exit 4
     fi
