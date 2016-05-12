@@ -58,11 +58,14 @@ echo
 apt_log_lines_old=$(cat "${apt_log}" | wc -l)
 if [[ ${#pkg_new[@]} -gt 0 ]]; then
     echo -n "Installing required system packages... "
-    if [[ ! $(apt-get install -y ${pkg_new[@]} >> "${apt_log}") ]]; then
-       echo "'apt-get install -y ${pkg_new[@]}' exited with status code $?" >> "${apt_log}"
+    apt-get install -y ${pkg_new[@]} >> "${apt_log}"
+    ret_code=$?
+    if [[ ! ${ret_code} ]]; then
+       echo "'apt-get install -y ${pkg_new[@]}' exited with status code ${ret_code}" >> "${apt_log}"
        echo -e "\n  ${err} Error installing required packages" 1>&2
        apt_log_lines_new=$(cat "${apt_log}" | wc -l)
        tail -n+$((apt_log_lines_new-apt_log_lines_old)) "${apt_log}"
+       echo "skipped $((apt_log_lines_new-apt_log_lines_old)) lines"
        exit 4
     fi
     echo -e "\n"
