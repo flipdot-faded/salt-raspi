@@ -55,10 +55,13 @@ for p in ${pkg_req[@]}; do
 done
 echo
 
+apt_log_lines_old=$(cat "${apt_log}" | wc -l)
 if [[ ${#pkg_new[@]} -gt 0 ]]; then
     echo -n "Installing required system packages... "
-    if [[ !$(apt-get install -y ${pkg_new[@]} >> ${apt_log}) ]]; then
+    if [[ !$(apt-get install -y ${pkg_new[@]} >> "${apt_log}") ]]; then
        echo -e "\n  ${err} Error installing required packages" 1>&2
+       apt_log_lines_new=$(cat "${apt_log}" | wc -l)
+       tail -n+$((apt_log_lines_new-apt_log_lines_old)) "${apt_log}"
        exit 4
     fi
     echo -e "\n"
